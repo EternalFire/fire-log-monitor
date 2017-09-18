@@ -2,13 +2,17 @@ var logData = (function() {
 
 return {
   _socket: null,
-  _uri: "ws://192.168.31.183:3000", // socket.io server address
+
+  // socket.io server address
+  // _uri: "ws://192.168.31.183:3000", 
+  _uri: "ws://192.168.10.58:3000", 
+
   _array: [],
   _lastData: null,
   _dataNum: 100000 * 3,    // max length of _array
   _nodeList: null,
 
-  displayInConsole: true,  // print to console 
+  displayInConsole: false,  // print to console 
   displayInBody: true,     // print to body
   
   onMessage: null,         // will call when receive message
@@ -89,7 +93,8 @@ return {
   printToBody: function(data) {
     if (!this.displayInBody) return;
 
-    var node = document.createElement("p");
+    var isBottom = Math.abs((document.body.scrollHeight - document.documentElement.clientHeight) - document.body.scrollTop) < 5.0;
+    var node = document.createElement("pre");
 
     this._nodeList = this._nodeList || [];
     this._nodeList.push(node);
@@ -98,8 +103,13 @@ return {
     
     node.style.marginTop = "0";
     node.style.marginBottom = "5px";
+    node.style.fontSize = "1.5em";
 
-    document.body.appendChild(node);    
+    document.body.appendChild(node);
+
+    if (isBottom) {
+      document.body.scrollTop = document.body.scrollHeight;
+    }
   },
 
   clearNodeList: function() {
@@ -109,5 +119,6 @@ return {
       element.remove();
     });
   },
-};  
+
+};
 })();
