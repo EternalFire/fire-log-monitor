@@ -27,7 +27,7 @@
     "redbox-react": "^1.2.6"
   },
   "scripts": {
-    "build": "atool-build",    
+    "build": "atool-build",
     "start": "dora --plugins webpack",
     "test": "atool-test-mocha ./**/__tests__/*-test.js"
   }
