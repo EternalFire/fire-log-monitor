@@ -36,6 +36,10 @@ var logData = (function() {
       this.initSocketHandler(this._socket);
     },
 
+    /**
+     * @function connect
+     * @param  {String} uri log server address
+     */
     connect: function(uri) {
       var address = uri || this._uri;
       if (this._socket) {
@@ -93,7 +97,6 @@ var logData = (function() {
     getDataArray: function() {
       return this._array;
     },
-
 
     printToConsole: function(data) {
       if (!this.displayInConsole) return;
