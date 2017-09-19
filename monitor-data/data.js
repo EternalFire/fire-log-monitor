@@ -1,124 +1,137 @@
 var logData = (function() {
 
-return {
-  _socket: null,
+  var _isBottom = function() {
+    var threshold = 5.0;
+    // var isBottom = Math.abs((document.body.scrollHeight - document.documentElement.clientHeight) - document.body.scrollTop) < threshold;
+    var isBottom = Math.abs((document.documentElement.scrollHeight - document.documentElement.clientHeight) - document.documentElement.scrollTop) < threshold;
+    return isBottom;
+  }
 
-  // socket.io server address
-  // _uri: "ws://192.168.31.183:3000", 
-  _uri: "ws://192.168.10.58:3000", 
+  var _scrollToBottom = function() {
+    // document.body.scrollTop = document.body.scrollHeight;
+    window.scrollTo(0, document.documentElement.scrollHeight - document.documentElement.clientHeight);
+  }
 
-  _array: [],
-  _lastData: null,
-  _dataNum: 100000 * 3,    // max length of _array
-  _nodeList: null,
+  return {
+    _socket: null,
 
-  displayInConsole: false,  // print to console 
-  displayInBody: true,     // print to body
-  
-  onMessage: null,         // will call when receive message
-  onAddData: null,         // will call when data push in _array
-  onClearData: null,       // will call when data remove from _array
+    // socket.io server address
+    // _uri: "ws://192.168.31.183:3000",
+    _uri: "ws://192.168.10.58:3000",
 
-  init: function() {
-    this.connect();  
-    this.initSocketHandler(this._socket);
-  },
+    _array: [],
+    _lastData: null,
+    _dataNum: 100000 * 3,    // max length of _array
+    _nodeList: null,
 
-  connect: function(uri) {
-    var address = uri || this._uri;
-    if (this._socket) {
-      this._socket.disconnect(true);
-      this._socket = null;
-    }
+    displayInConsole: false,  // print to console
+    displayInBody: true,     // print to body
 
-    var socket = io(address);
-    this._socket = socket;
-  },
+    onMessage: null,         // will call when receive message
+    onAddData: null,         // will call when data push in _array
+    onClearData: null,       // will call when data remove from _array
 
-  initSocketHandler: function(socket) {
-    if (!socket) return;
+    init: function() {
+      this.connect();
+      this.initSocketHandler(this._socket);
+    },
 
-    var self = this;
+    connect: function(uri) {
+      var address = uri || this._uri;
+      if (this._socket) {
+        this._socket.disconnect(true);
+        this._socket = null;
+      }
 
-    socket.on("message", function(data) {
-      if (self.onMessage) self.onMessage(data);
+      var socket = io(address);
+      this._socket = socket;
+    },
 
-      self.add(data);
-      self.printToConsole(data);
-      self.printToBody(data);
-    });
-  },
+    initSocketHandler: function(socket) {
+      if (!socket) return;
 
-  /**
-   * Add data to this._array
-   * @param {String} data message from socket.io server
-   */
-  add: function(data) {
-    if (this.currentLength() >= this._dataNum) {
-      this.clear();
-    }
+      var self = this;
 
-    if (this._lastData == data) return;
-    this._lastData = data;
+      socket.on("message", function(data) {
+        if (self.onMessage) self.onMessage(data);
 
-    var len = this._array.push(data);
+        self.add(data);
+        self.printToConsole(data);
+        self.printToBody(data);
+      });
+    },
 
-    if (this.onAddData) this.onAddData(data);
+    /**
+     * Add data to this._array
+     * @param {String} data message from socket.io server
+     */
+    add: function(data) {
+      if (this.currentLength() >= this._dataNum) {
+        this.clear();
+      }
 
-    return len;
-  },
+      if (this._lastData == data) return;
+      this._lastData = data;
 
-  clear: function() {
-    this._array = [];
+      var len = this._array.push(data);
 
-    if (this.onClearData) this.onClearData();
-  },
+      if (this.onAddData) this.onAddData(data);
 
-  currentLength: function() {
-    return this._array.length;
-  },
+      return len;
+    },
 
-  getDataArray: function() {
-    return this._array;
-  },
+    clear: function() {
+      this._array = [];
+
+      if (this.onClearData) this.onClearData();
+    },
+
+    currentLength: function() {
+      return this._array.length;
+    },
+
+    getDataArray: function() {
+      return this._array;
+    },
 
 
-  printToConsole: function(data) {
-    if (!this.displayInConsole) return;
-    
-    console.log(data);
-  },
+    printToConsole: function(data) {
+      if (!this.displayInConsole) return;
+
+      console.log(data);
+    },
 
 
-  printToBody: function(data) {
-    if (!this.displayInBody) return;
+    printToBody: function(data) {
+      if (!this.displayInBody) return;
 
-    var isBottom = Math.abs((document.body.scrollHeight - document.documentElement.clientHeight) - document.body.scrollTop) < 5.0;
-    var node = document.createElement("pre");
+      // var isBottom = Math.abs((document.body.scrollHeight - document.documentElement.clientHeight) - document.body.scrollTop) < 5.0;
+      var isBottom = _isBottom();
+      var node = document.createElement("pre");
 
-    this._nodeList = this._nodeList || [];
-    this._nodeList.push(node);
+      this._nodeList = this._nodeList || [];
+      this._nodeList.push(node);
 
-    node.innerHTML = data;
-    
-    node.style.marginTop = "0";
-    node.style.marginBottom = "5px";
-    node.style.fontSize = "1.5em";
+      node.innerHTML = data;
 
-    document.body.appendChild(node);
+      node.style.marginTop = "0";
+      node.style.marginBottom = "5px";
+      node.style.fontSize = "1.5em";
 
-    if (isBottom) {
-      document.body.scrollTop = document.body.scrollHeight;
-    }
-  },
+      document.body.appendChild(node);
 
-  clearNodeList: function() {
-    if (!this._nodeList) return;
+      if (isBottom) {
+        _scrollToBottom();
+      }
+    },
 
-    this._nodeList.forEach(function(element) {
-      element.remove();
-    });
-  },
+    clearNodeList: function() {
+      if (!this._nodeList) return;
 
-};
+      this._nodeList.forEach(function(element) {
+        element.remove();
+      });
+    },
+
+  };
 })();
