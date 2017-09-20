@@ -1,4 +1,4 @@
-var logData = (function() {
+var $FireLog$ = (function() {
 
   var _isBottom = function() {
     var threshold = 5.0;
@@ -108,9 +108,8 @@ var logData = (function() {
     printToBody: function(data) {
       if (!this.displayInBody) return;
 
-      // var isBottom = Math.abs((document.body.scrollHeight - document.documentElement.clientHeight) - document.body.scrollTop) < 5.0;
       var isBottom = _isBottom();
-      var node = document.createElement("pre");
+      var node = document.createElement("p");
 
       this._nodeList = this._nodeList || [];
       this._nodeList.push(node);

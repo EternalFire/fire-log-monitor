@@ -1,4 +1,4 @@
 
 window.addEventListener("load", function() {
-  logData.init();
+  $FireLog$.init();
 });

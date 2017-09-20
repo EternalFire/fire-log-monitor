@@ -1,5 +1,6 @@
 
 exports.SERVER_PORT = 3000
 exports.ADDRESS_FOR_CLIENT = "ws://localhost:" + exports.SERVER_PORT
+
 exports.EVENT_REQUEST_FILE = "EVENT_REQUEST_FILE"
 exports.EVENT_SEND_FILE = 'EVENT_SEND_FILE'
