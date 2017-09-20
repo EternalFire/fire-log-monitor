@@ -9,6 +9,7 @@
 - for web
     - [ ] use web worker
     - [ ] mark the sender
+    - [ ] differentiate the old log
 
 - for server
-    - null
+    - [ ] save log file

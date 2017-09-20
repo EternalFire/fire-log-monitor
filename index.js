@@ -1,12 +1,28 @@
 'use strict';
 
+module.exports = main;
+
 const os = require('os');
 const fs = require('fs');
 const dns = require('dns');
 const constants = require('./Constants');
 
-let log = console.log;
 let localAddress = "";
+
+// client records
+let clients = {}
+function clientsLength() {
+  return Object.keys(clients).length
+}
+
+function addClient(id) {
+  clients[id] = {}
+}
+
+function delClient(id) {
+  delete clients[id];
+}
+
 
 function main() {
   dns.lookup(os.hostname(), (err, address, family) => {
@@ -40,62 +56,6 @@ function useHttpServer() {
   app.use("/", function(req, res) {
     res.sendFile(__dirname + '/simple-monitor/index.html');
   });
-}
-
-
-// client records
-let clients = {}
-function clientsLength() {
-  return Object.keys(clients).length
-}
-
-function addClient(id) {
-  clients[id] = {}
-}
-
-function delClient(id) {
-  delete clients[id];
-}
-
-
-// handlers
-function handleRequestFile(socket, path) {
-  fs.readFile('demo.txt', 'utf8', function (err, data) {
-    if (err) {
-      return console.error(err)
-    }
-    else {
-      socket.emit(constants.EVENT_SEND_FILE, data)
-    }
-  });
-}
-
-function handleError(error) {
-  console.log('handleError: ');
-  console.log(error);
-}
-
-function handleConnect(socket) {
-  let socketID = socket.id;
-  console.log(socketID + ' connected! ');
-
-  addClient(socketID);
-
-  let welcomeMessage = '[Welcome ' + socketID +' !!] Num: (' + clientsLength() + ')';
-  socket.send(welcomeMessage);
-}
-
-/**
- * broadcast message
- * @param {Socket} socket
- * @param {String} message
- * @param {Boolean} toSender
- */
-function broadcastMessage(socket, message, toSender) {
-  if (toSender) {
-    socket.emit('message', message);
-  }
-  socket.broadcast.emit('message', message);
 }
 
 
@@ -134,9 +94,47 @@ function useIO() {
     })
   })
 
-  log('log server ready!')
+  console.log('log server ready!')
 }
 
 
+// handlers
+function handleRequestFile(socket, path) {
+  fs.readFile('demo.txt', 'utf8', function (err, data) {
+    if (err) {
+      return console.error(err)
+    }
+    else {
+      socket.emit(constants.EVENT_SEND_FILE, data)
+    }
+  });
+}
 
-main();
+function handleError(error) {
+  console.log('handleError: ');
+  console.log(error);
+}
+
+function handleConnect(socket) {
+  let socketID = socket.id;
+  console.log(socketID + ' connected! ');
+
+  addClient(socketID);
+
+  let welcomeMessage = '[Welcome ' + socketID +' !!] Num: (' + clientsLength() + ')';
+  // socket.send(welcomeMessage);
+  broadcastMessage(socket, welcomeMessage, true);
+}
+
+/**
+ * broadcast message
+ * @param {Socket} socket
+ * @param {String} message
+ * @param {Boolean} toSender if true, broadcast to the sender
+ */
+function broadcastMessage(socket, message, toSender) {
+  if (toSender) {
+    socket.emit('message', message);
+  }
+  socket.broadcast.emit('message', message);
+}
