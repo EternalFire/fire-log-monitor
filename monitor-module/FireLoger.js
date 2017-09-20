@@ -1,4 +1,4 @@
-var $FireLog$ = (function() {
+var FireLoger = (function() {
 
   var _isBottom = function() {
     var threshold = 5.0;
@@ -108,11 +108,25 @@ var $FireLog$ = (function() {
     printToBody: function(data) {
       if (!this.displayInBody) return;
 
+      var text = data;
       var isBottom = _isBottom();
-      var node = document.createElement("p");
-
       this._nodeList = this._nodeList || [];
-      this._nodeList.push(node);
+
+      text.split("\n").forEach(function(element){
+        var node = this.createNode(element);
+        document.body.appendChild(node);
+
+        this._nodeList.push(node);
+      }.bind(this));
+
+      if (isBottom) {
+        _scrollToBottom();
+      }
+    },
+
+    createNode: function(data)
+    {
+      var node = document.createElement("p");
 
       node.innerHTML = data;
 
@@ -120,11 +134,7 @@ var $FireLog$ = (function() {
       node.style.marginBottom = "5px";
       node.style.fontSize = "1.5em";
 
-      document.body.appendChild(node);
-
-      if (isBottom) {
-        _scrollToBottom();
-      }
+      return node;
     },
 
     clearNodeList: function() {
