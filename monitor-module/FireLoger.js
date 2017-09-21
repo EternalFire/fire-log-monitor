@@ -145,5 +145,13 @@ var FireLoger = (function() {
       });
     },
 
+    /**
+     * @property cls command: clear document.body, if this.displayInBody is true
+     */
+    get cls() {
+      this.clearNodeList();
+    },
+    set cls(value) {
+    }
   };
 })();
