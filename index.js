@@ -5,38 +5,46 @@ module.exports = main;
 const os = require('os');
 const fs = require('fs');
 const dns = require('dns');
+const path = require('path');
 const constants = require('./Constants');
 
-let localAddress = "";
-
 // client records
-let clients = {}
+let clients = {};
 function clientsLength() {
-  return Object.keys(clients).length
+  return Object.keys(clients).length;
 }
 
 function addClient(id) {
-  clients[id] = {}
+  clients[id] = {};
 }
 
 function delClient(id) {
   delete clients[id];
 }
 
-
 function main() {
   dns.lookup(os.hostname(), (err, address, family) => {
     console.log('IP address: %j family: IPv%s', address, family);
-    localAddress = address;
 
+    writeConfig(address, constants.SERVER_PORT);
     useIO();
-    useHttpServer();
+    useHttpServer(address);
   });
 }
 
+function writeConfig(ipAddress, logServerPort) {
+  const logServer = `ws://${ipAddress}:${logServerPort}`;
+  const socketIOScript = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js";
+
+  const clientConfig = { logServer, socketIOScript };
+  let clientConfigStr = `var FireLoggerConfig = ${JSON.stringify(clientConfig, null, 2)};`;
+
+  let writeStream = fs.createWriteStream(path.join('firelogger', 'config.js'));
+  writeStream.end(clientConfigStr);
+}
 
 // http server
-function useHttpServer() {
+function useHttpServer(ipAddress) {
   const express = require('express');
   const app = express();
   const server = require('http').createServer(app);
@@ -48,7 +56,7 @@ function useHttpServer() {
     // console.log(os.hostname());
     // console.log(server.localAddress);
 
-    console.log('Http Server listening at %s:%s', localAddress, object.port);
+    console.log('Http Server listening at %s:%s', ipAddress, object.port);
   });
 
   // Routing
@@ -102,10 +110,10 @@ function useIO() {
 function handleRequestFile(socket, path) {
   fs.readFile('demo.txt', 'utf8', function (err, data) {
     if (err) {
-      return console.error(err)
+      return console.error(err);
     }
     else {
-      socket.emit(constants.EVENT_SEND_FILE, data)
+      socket.emit(constants.EVENT_SEND_FILE, data);
     }
   });
 }

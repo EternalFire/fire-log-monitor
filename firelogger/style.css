@@ -1,0 +1,87 @@
+html {
+  font-size: 18px;
+}
+
+html,body,div,pre,span {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * http://www.cnblogs.com/deryck/p/4174449.html
+ */
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+/* 工具栏 */
+.toolbar {
+  position: fixed;
+  display: flex;
+  flex-flow: column;
+  background-color: #464e56;
+  width: auto;
+  max-width: 190px;
+  height: 100%;
+  padding: 0.4rem;
+  right: 0;
+  top: 0;
+}
+.toolbar > * {
+  font-size: 0.8rem;
+  margin: 5px;
+}
+.toolbar button {
+  padding: 5px;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* 状态信息 */
+.status {
+  color: white;
+}
+
+
+/* 日志 */
+.logContainer {
+  font-size: 1.1rem;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+/* 行号 */
+.logLine {
+  /*display: inline-block;*/
+  padding: 0.5rem;
+  background-color: #464e56;
+  color: white;
+  text-align: center;
+  width: 3rem;
+  border: 5px solid #464e56;
+
+  transition: border 0.4s;
+}
+
+.logcontent {
+  /*display: inline-block;*/
+  width: calc(100% - 3.4rem - 5px);
+  margin: auto;
+  padding-left: 0.4rem;
+}
+
+.logContainer:nth-of-type(2n) {
+  background-color: rgba(228, 171, 171, 0.13);
+}
+
+.logContainer:hover .logLine {
+  border: 5px dotted gold;
+}

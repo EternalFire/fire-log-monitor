@@ -1,4 +1,4 @@
 
 window.addEventListener("load", function() {
-  FireLoger.init();
+  FireLogger.init();
 });
