@@ -11,4 +11,6 @@
 - [ ] differentiate the old log
 - [ ] save log file
 - [ ] define log data struct
-- [ ] parse config 
+- [ ] parse config
+- [ ] click log content and jump to the line in the file
+- [ ] expand and collapse log content
