@@ -14,3 +14,4 @@
 - [ ] parse config
 - [ ] click log content and jump to the line in the file
 - [ ] expand and collapse log content
+- [ ] auto open browser
