@@ -1,8 +1,8 @@
 // FireLogger Worker Message
 var FMsg = (function() {
   function getName(value) {
-    for (var name in FWM) {
-      if (FWM[name] == value) {
+    for (var name in FMsg) {
+      if (FMsg[name] == value) {
         return name;
       }
     }
