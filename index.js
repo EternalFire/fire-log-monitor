@@ -6,6 +6,7 @@ const os = require('os');
 const fs = require('fs');
 const dns = require('dns');
 const path = require('path');
+const childProcess = require('child_process');
 const constants = require('./Constants');
 
 // client records
@@ -56,7 +57,9 @@ function useHttpServer(ipAddress) {
     // console.log(os.hostname());
     // console.log(server.localAddress);
 
-    console.log('Http Server listening at %s:%s', ipAddress, object.port);
+    var url = `http://${ipAddress}:${object.port}`
+    console.log(`Http Server listening at ${url}`);
+    childProcess.exec(`start ${url}`)
   });
 
   // Routing

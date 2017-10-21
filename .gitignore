@@ -50,3 +50,5 @@ lib/
 dist/
 
 firelogger/config.js
+
+package-lock.json
