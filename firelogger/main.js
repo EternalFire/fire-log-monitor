@@ -30,7 +30,7 @@ var FireLogger = (function() {
     _socketIOReady: false,
     _msgDefinitionReady: false,
 
-    displayInConsole: true,   // print to console
+    displayInConsole: false,   // print to console
     displayInBody: true,      // print to body
     useWebWorker: true,
 
@@ -226,7 +226,12 @@ var FireLogger = (function() {
         return true;
       }
 
-      console.log("no this message ", name);
+      if (name == FMsg.onCreateRoom) {
+        self._view.createRoomButton(data);
+        return true;
+      }
+
+      console.log("Not handle this message ", name);
       return false;
     },
 
@@ -258,7 +263,14 @@ var FireLogger = (function() {
       } else {
         this.handleWorkerMessage(FMsg.onGetDataLength, this._data.currentLength());
       }
+    },
 
-    }
+    setCurrentRoom: function(roomName) {
+      if (this.useWebWorker) {
+        this.post(FMsg.setRoomName, roomName);
+      } else {
+        // todo
+      }
+    },
   };
 })();

@@ -17,6 +17,7 @@ var FireLoggerView = (function() {
   return {
     _nodeList: null,
     _statusLabelList: null,
+    _toolbar: null,
 
     dataLength: -1,
 
@@ -32,9 +33,15 @@ var FireLoggerView = (function() {
       var self = this;
       var div = document.createElement("div");
       document.body.appendChild(div);
-
       div.classList = "toolbar";
 
+      this._toolbar = div;
+
+      function createLine() {
+        div.appendChild(document.createElement("hr"));
+      }
+
+      // menu
       this.createButton(div, "clear screen", function() {
         FireLogger.cls;
       });
@@ -42,7 +49,7 @@ var FireLoggerView = (function() {
         FireLogger.clearData;
       });
 
-      div.appendChild(document.createElement("hr"));
+      createLine();
 
       this.createStatus("label", div, "0",
         function checkLength(statusObject) {
@@ -59,6 +66,7 @@ var FireLoggerView = (function() {
         }
       );
 
+      createLine();
     },
 
     createButton: function(parent, text, onclick) {
@@ -69,6 +77,14 @@ var FireLoggerView = (function() {
       btn.onclick = onclick;
 
       return btn;
+    },
+
+    createRoomButton: function(roomName) {
+      var btn = this.createButton(this._toolbar, roomName, function() {
+        FireLogger.setCurrentRoom(roomName);
+
+        btn.classList = "room";
+      });
     },
 
     createStatus: function(type, parent, text, check, update) {
@@ -148,9 +164,12 @@ var FireLoggerView = (function() {
       }
     },
 
+    /**
+     * check status
+     */
     tick: function() {
       var index = 0;
-      var delay = 200;
+      var delay = 100;
 
       setInterval(function(self) {
         var i = Math.min(index, self._statusLabelList.length - 1);

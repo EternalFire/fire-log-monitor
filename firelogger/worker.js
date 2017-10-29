@@ -1,7 +1,7 @@
 // use web worker
 if (typeof DedicatedWorkerGlobalScope != "undefined")
 {
-  var _data;
+  var _data; // FireLoggerData
 
   function tryImportScript(src) {
     try {
@@ -31,6 +31,12 @@ if (typeof DedicatedWorkerGlobalScope != "undefined")
       return true;
     }
 
+    if (name == FMsg.setRoomName) {
+      _data.currentRoom = data;
+      console.log("_data.currentRoom = ", _data.currentRoom);
+      return true;
+    }
+
     return false;
   }
 
@@ -45,9 +51,9 @@ if (typeof DedicatedWorkerGlobalScope != "undefined")
     _data = FireLoggerData;
     _data.init(FireLoggerConfig.logServer);
 
-    _data.onMessage = function(data) {
-      post(FMsg.onMessage, data);
-    };
+    // _data.onMessage = function(data) {
+    //   post(FMsg.onMessage, data);
+    // };
 
     _data.onAddData = function(data) {
       post(FMsg.onAddData, data);
@@ -55,6 +61,10 @@ if (typeof DedicatedWorkerGlobalScope != "undefined")
 
     _data.onClearData = function() {
       post(FMsg.onClearData);
+    };
+
+    _data.onCreateRoom = function(roomName) {
+      post(FMsg.onCreateRoom, roomName);
     };
 
     post(FMsg.workerReady);

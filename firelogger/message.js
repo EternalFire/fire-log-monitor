@@ -21,6 +21,8 @@ var FMsg = (function() {
     clearData:       11000002,
     getDataLength:   11000003,
     onGetDataLength: 11000004,
+    setRoomName:     11000005,
+    onCreateRoom:    11000006,
 
     // Worker
     workerReady: 12000000,

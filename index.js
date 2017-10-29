@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
 module.exports = main;
 
-const os = require('os');
-const fs = require('fs');
-const dns = require('dns');
-const path = require('path');
-const childProcess = require('child_process');
-const constants = require('./Constants');
+const os = require("os");
+const fs = require("fs");
+const dns = require("dns");
+const path = require("path");
+const childProcess = require("child_process");
+const constants = require("./Constants");
 
 // client records
 let clients = {};
@@ -23,9 +23,12 @@ function delClient(id) {
   delete clients[id];
 }
 
+let clientRooms = [];
+
+// !! start !!
 function main() {
   dns.lookup(os.hostname(), (err, address, family) => {
-    console.log('IP address: %j family: IPv%s', address, family);
+    console.log("IP address: %j family: IPv%s", address, family);
 
     writeConfig(address, constants.SERVER_PORT);
     useIO();
@@ -44,15 +47,15 @@ function writeConfig(ipAddress, logServerPort) {
 var FireLoggerConfig = ${JSON.stringify(clientConfig, null, 2)};
 `;
 
-  let writeStream = fs.createWriteStream(path.join('firelogger', 'config.js'));
+  let writeStream = fs.createWriteStream(path.join("firelogger", "config.js"));
   writeStream.end(clientConfigStr);
 }
 
 // http server
 function useHttpServer(ipAddress) {
-  const express = require('express');
+  const express = require("express");
   const app = express();
-  const server = require('http').createServer(app);
+  const server = require("http").createServer(app);
   const port = 3030;
 
   server.listen(port, function () {
@@ -70,21 +73,21 @@ function useHttpServer(ipAddress) {
   // Routing
   app.use(express.static(__dirname));
   app.use("/", function(req, res) {
-    res.sendFile(__dirname + '/simple-monitor/index.html');
+    res.sendFile(__dirname + "/simple-monitor/index.html");
   });
 }
 
 function generateCmd(url) {
-  let cmd = '';
+  let cmd = "";
   switch (process.platform) {
-    case 'wind32':
-      cmd = 'start';
+    case "wind32":
+      cmd = "start";
       break;
-    case 'linux':
-      cmd = 'xdg-open';
+    case "linux":
+      cmd = "xdg-open";
       break;
-    case 'darwin':
-      cmd = 'open';
+    case "darwin":
+      cmd = "open";
       break;
   }
 
@@ -99,70 +102,95 @@ function openBrowser(url) {
 }
 
 function useIO() {
-  var io = require('socket.io').listen(constants.SERVER_PORT);
-  io.on('connection', function (socket) {
+  var io = require("socket.io").listen(constants.SERVER_PORT);
+  io.on("connection", function (socket) {
 
-    handleConnect(socket)
+    helloClient(socket);
 
-    let socketID = socket.id;
-    let lastData;
+    socket.on("error", handleError);
 
-    socket.on('message', function(data) {
+    socket.on("disconnect", function() {
+      let socketID = socket.id;
+      delClient(socketID);
 
+      let message = `client socketID=[${socketID}] disconnect! Total client: [${clientsLength()}]`;
+      console.log(message);
+
+      broadcastMessage(socket, message, false)
+    });
+
+    // let lastData;
+    socket.on("message", function(data) {
       // if (lastData == data) return;
       // lastData = data;
-
       // console.log(data);
       broadcastMessage(socket, data, false);
-    })
+    });
 
-    socket.on('disconnect', function() {
-      delClient(socketID)
+    let selfRoom = io.of(socket.id);
+    selfRoom.on("connection", function(roomSocket) {
+      roomSocket.on("private message", function(socketID, data) {
+        handlePrivateMessage(roomSocket, roomSocket.id, data);
+      });
+    });
 
-      let message = 'client socketID=[' + socketID + '] disconnect!! Num: (' + clientsLength() + ')'
-      // let message = 'client socketID=[' + socketID + '] disconnect! ';
-      broadcastMessage(socket, message, false)
+    socket.on("create room", function(roomName) {
+      let room = io.of(roomName);
 
-      console.log(message)
-    })
+      socket.emit("create room success", roomName);
+      socket.broadcast.emit("create room success", roomName);
 
-    socket.on('error', handleError)
+      room.on("connection", function(roomSocket) {
+        roomSocket.on("message", function(data) {
+          broadcastMessage(roomSocket, data, false);
+        });
+      });
 
-    socket.on(constants.EVENT_REQUEST_FILE, function(){
-      handleRequestFile(socket, 'demo.txt')
-    })
-  })
+      console.log(`create room [${roomName}]`);
 
-  console.log('log server ready!')
+      clientRooms.push(roomName);
+    });
+
+    // socket.on(constants.EVENT_REQUEST_FILE, function(){
+    //   handleRequestFile(socket, "demo.txt")
+    // })
+  });
+
+  console.log("log server ready!");
 }
 
 
 // handlers
-function handleRequestFile(socket, path) {
-  fs.readFile('demo.txt', 'utf8', function (err, data) {
-    if (err) {
-      return console.error(err);
-    }
-    else {
-      socket.emit(constants.EVENT_SEND_FILE, data);
-    }
-  });
-}
+// function handleRequestFile(socket, path) {
+//   fs.readFile("demo.txt", "utf8", function (err, data) {
+//     if (err) {
+//       return console.error(err);
+//     }
+//     else {
+//       socket.emit(constants.EVENT_SEND_FILE, data);
+//     }
+//   });
+// }
 
 function handleError(error) {
-  console.log('handleError: ');
+  console.log("handleError: ");
   console.log(error);
 }
 
-function handleConnect(socket) {
+function helloClient(socket) {
   let socketID = socket.id;
-  console.log(socketID + ' connected! ');
+  console.log(`${socketID} connected!`);
 
+  // record client
   addClient(socketID);
 
-  let welcomeMessage = '[Welcome ' + socketID +' !!] Num: (' + clientsLength() + ')';
-  // socket.send(welcomeMessage);
+  let welcomeMessage = `Welcome ${socketID} ! Total client: [${clientsLength()}]`;
   broadcastMessage(socket, welcomeMessage, true);
+
+  // notice room name
+  clientRooms.forEach(function(name) {
+    socket.emit("create room success", name);
+  });
 }
 
 /**
@@ -173,7 +201,13 @@ function handleConnect(socket) {
  */
 function broadcastMessage(socket, message, toSender) {
   if (toSender) {
-    socket.emit('message', message);
+    socket.emit("message", message);
   }
-  socket.broadcast.emit('message', message);
+  socket.broadcast.emit("message", message);
+}
+
+function handlePrivateMessage(socket, socketID, message) {
+  let logMessage = `handlePrivateMessage ${socketID} : ${message}`;
+  console.log(logMessage);
+  socket.emit("private message", socketID, message);
 }

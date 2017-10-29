@@ -43,12 +43,19 @@ html,body,div,pre,span {
   border-radius: 8px;
   background-color: white;
   cursor: pointer;
+  text-align: center;
+  display: block;
+}
+
+.room {
+  background-color: #2BFFF6FF !important;
 }
 
 /* 状态信息 */
 .status {
   color: white;
 }
+
 
 
 /* 日志 */
