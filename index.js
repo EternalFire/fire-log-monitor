@@ -79,8 +79,10 @@ function useHttpServer(ipAddress) {
 
 function generateCmd(url) {
   let cmd = "";
+  console.log(`process.platform = [${process.platform}]`);
+
   switch (process.platform) {
-    case "wind32":
+    case "win32":
       cmd = "start";
       break;
     case "linux":
@@ -141,6 +143,9 @@ function useIO() {
       socket.broadcast.emit("create room success", roomName);
 
       room.on("connection", function(roomSocket) {
+
+        console.log(`${roomSocket.id} is in room`);
+
         roomSocket.on("message", function(data) {
           broadcastMessage(roomSocket, data, false);
         });
