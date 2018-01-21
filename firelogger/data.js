@@ -17,7 +17,7 @@ var FireLoggerData = (function() {
     init: function(uri) {
       this.connect(uri);
       this.initSocketHandler(this._socket);
-      this.test();
+      // this.test();
     },
 
     /**
@@ -68,14 +68,29 @@ var FireLoggerData = (function() {
           var roomSocket = io(`${self._uri}/${roomName}`);
           roomSocket.on("message", function(data) {
             self.handleRoomMessage(roomName, data);
-          })
+          });
         });
+      });
+
+      socket.on("disconnect", function() {
+        if (self._socket) {
+          self._socket = null;
+        }
       });
     },
 
     handleMessage: function(data) {
-      this.onMessage && this.onMessage(data);
-      this.add(data);
+
+      if (data.indexOf("\n") == -1) {
+        this.onMessage && this.onMessage(data);
+        this.add(data);
+      } else {
+        var array = data.split("\n");
+        array.forEach(function(element, index) {
+          this.onMessage && this.onMessage(element);
+          this.add(element);
+        }.bind(this));
+      }
     },
 
     handleRoomMessage: function(roomName, data) {

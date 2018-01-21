@@ -147,13 +147,6 @@ var FireLoggerView = (function() {
       var text = data;
       var isBottom = _isBottom();
 
-      // text.split("\n").forEach(function(element){
-      //   var node = this.createNode(element);
-      //   document.body.appendChild(node);
-
-      //   this._nodeList.push(node);
-      // }.bind(this));
-
       var node = this.createNode(text, this._nodeList.length);
       document.body.appendChild(node);
 

@@ -107,8 +107,6 @@ function useIO() {
   var io = require("socket.io").listen(constants.SERVER_PORT);
   io.on("connection", function (socket) {
 
-    helloClient(socket);
-
     socket.on("error", handleError);
 
     socket.on("disconnect", function() {
@@ -121,6 +119,14 @@ function useIO() {
       broadcastMessage(socket, message, false)
     });
 
+    // if (clientsLength() > 1) {
+    //   console.log("full client!", socket.id, clientsLength());
+    //   socket.disconnect(true);
+    //   return;
+    // }
+
+    helloClient(socket);
+
     // let lastData;
     socket.on("message", function(data) {
       // if (lastData == data) return;
@@ -129,6 +135,7 @@ function useIO() {
       broadcastMessage(socket, data, false);
     });
 
+    // for room
     let selfRoom = io.of(socket.id);
     selfRoom.on("connection", function(roomSocket) {
       roomSocket.on("private message", function(socketID, data) {
@@ -155,6 +162,14 @@ function useIO() {
 
       clientRooms.push(roomName);
     });
+
+    socket.on("commander", (commandFlag, type, jsonData) => {
+      socket.broadcast.emit("commander", commandFlag, type, jsonData);
+        console.log("commandFlag: ", commandFlag);
+        console.log("type: ",type);
+        console.log("data: ", jsonData);
+    });
+
 
     // socket.on(constants.EVENT_REQUEST_FILE, function(){
     //   handleRequestFile(socket, "demo.txt")

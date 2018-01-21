@@ -33,29 +33,20 @@ socket.on('connect', () => {
     console.log('message:', data);
   });
 
-  // setInterval(function(){
-  //   var message = ` ${socket.id} ` + (new Date()).toString();
-  //   console.log(message);
-  //   socket.emit('message', message);
-  // },50);
+  setInterval(function(){
+    var message = ` ${socket.id}, ` + (new Date()).toString();
+    console.log(message);
+    socket.emit('message', message.replace(',', '\n'));
+    // socket.emit('commander', '#c|', 'get', message);
+  }, 1000);
 
-  // var seen = [];
-  // setInterval(function(){
-  //   var message = ` ${JSON.stringify(global, function(key, value) {
-  //     if (seen.length > 10) return "";
-  //     if (typeof value == "object") {
-
-  //       if (seen.indexOf(value) > -1) {
-  //         return key;
-  //       }
-  //     }
-
-  //     seen.push(value);
-  //     return value;
-  //   }, 1)} `;
-  //   console.log(message);
-  //   socket.emit('message', message);
-  // },200);
+  // setInterval(function() {
+  //   try {
+  //     throw new Error("test client ERROR!!!")
+  //   } catch(e) {
+  //     socket.emit('message', e.stack);
+  //   }
+  // }.bind(this), 2000);
 
   // socket.on(constants.EVENT_SEND_FILE, handleSendFile)
   // socket.emit(constants.EVENT_REQUEST_FILE)
@@ -65,24 +56,26 @@ socket.on('connect', () => {
   //   socket.disconnect(true);
   // }, 2000);
 
-  setTimeout(function() {
-    let roomName = "r_1";
 
-    socket.on("create room success", function(name) {
-      console.log("client room: ", name);
-      let roomSocket = io(uri + "/" + name);
+  // setTimeout(function() {
+  //   let roomName = "r_1";
 
-      roomSocket.on("connect", function() {
-        setInterval(function() {
-          let message = new Date().toString();
-          console.log(message);
+  //   socket.on("create room success", function(name) {
+  //     console.log("client room: ", name);
+  //     let roomSocket = io(uri + "/" + name);
 
-          roomSocket.emit("message", message);
-        }, 1000);
-      });
-    });
+  //     roomSocket.on("connect", function() {
+  //       setInterval(function() {
+  //         let message = new Date().toString();
+  //         console.log(message);
 
-    socket.emit("create room", roomName);
-  }, 1000);
+  //         roomSocket.emit("message", message);
+  //       }, 1000);
+  //     });
+  //   });
+
+  //   socket.emit("create room", roomName);
+  // }, 1000);
+
 });
 
